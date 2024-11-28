@@ -59,3 +59,69 @@ func SearchBySN(c *gin.Context) {
 	})
 
 }
+
+func GetAdditionalList(c *gin.Context) {
+	collection := db.Mongo.Collections["Message"]
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	var people []models.Person
+
+	cursor, err := collection.Find(ctx, bson.M{"accessed": false})
+	if err != nil {
+		c.JSON(200, gin.H{
+			"status":  200,
+			"message": "Data not found",
+		})
+		return
+	}
+
+	if err := cursor.All(c, &people); err != nil {
+		c.JSON(500, gin.H{
+			"status":  500,
+			"message": "Internal server error",
+			"error":   err,
+		})
+		return
+	}
+
+	c.JSON(200, gin.H{
+		"status":  200,
+		"message": people,
+	})
+
+}
+
+func GetAllList(c *gin.Context) {
+	collection := db.Mongo.Collections["Message"]
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	var people []models.Person
+
+	cursor, err := collection.Find(ctx, bson.M{})
+	if err != nil {
+		c.JSON(200, gin.H{
+			"status":  200,
+			"message": "Data not found",
+		})
+		return
+	}
+
+	if err := cursor.All(c, &people); err != nil {
+		c.JSON(500, gin.H{
+			"status":  500,
+			"message": "Internal server error",
+			"error":   err,
+		})
+		return
+	}
+
+	c.JSON(200, gin.H{
+		"status":  200,
+		"message": people,
+	})
+
+}

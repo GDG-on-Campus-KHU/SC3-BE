@@ -28,12 +28,16 @@ func GetDisasterList(c *gin.Context) {
 		return
 	}
 
+	log.Printf("Disasters: %v", disasters)
+
 	people, err := parseResponse(c, disasters)
 	if err != nil {
 		fmt.Println("Error parsing response: ", err)
 		c.JSON(500, gin.H{"message": "Error parsing response"})
 		return
 	}
+
+	log.Printf("People: %v", people)
 
 	/*
 		for _, person := range people {

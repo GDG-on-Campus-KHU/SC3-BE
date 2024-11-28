@@ -41,6 +41,7 @@ func GetDisaster(c context.Context) ([]models.Disaster, error) {
 	url = url + "&pageNo=" + pageNum
 	url = url + "&crtDt=" + crtDt
 	url = url + "&type=json"
+	log.Printf("URL: %v", url)
 	request, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		log.Printf("Error creating request: %v", err)

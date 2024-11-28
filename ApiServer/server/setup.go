@@ -18,5 +18,8 @@ func New() {
 	Server.Router = gin.Default()
 
 	Server.Router.GET("/db/missing/exist", handlers.NewDataExist)
+	Server.Router.GET("/db/missing/added/list", handlers.GetAdditionalList)
 	Server.Router.GET("/db/missing/person/:sn", handlers.SearchBySN)
+	Server.Router.GET("/db/missing/recent/list", handlers.GetAllList)
+	Server.Router.GET("/db/missing/region/:region", handlers.SearchByRegion)
 }
