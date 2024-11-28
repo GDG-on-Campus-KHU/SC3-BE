@@ -21,7 +21,22 @@ func GetDisasterList(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	disasters, err := api.GetDisaster(ctx)
+	pageNum := c.Query("pageNo")
+	if pageNum == "" {
+		pageNum = "1"
+	}
+
+	rowNum := c.Query("numOfRows")
+	if rowNum == "" {
+		rowNum = "200"
+	}
+
+	crtDt := c.Query("crtDt")
+	if crtDt == "" {
+		crtDt = time.Now().AddDate(0, -1, 0).Format("20060102")
+	}
+
+	disasters, err := api.GetDisaster(ctx, pageNum, rowNum, crtDt)
 	if err != nil {
 		fmt.Println("Error getting disaster: ", err)
 		c.JSON(500, gin.H{"message": "Error getting disaster"})
@@ -37,18 +52,10 @@ func GetDisasterList(c *gin.Context) {
 		return
 	}
 
-	log.Printf("People: %v", people)
-
-	/*
-		for _, person := range people {
-			_, err := db.Mongo.Collections["Message"].InsertOne(context.TODO(), person)
-			if err != nil {
-				fmt.Println("Error inserting person: ", err)
-				c.JSON(500, gin.H{"message": "Error inserting person"})
-				return
-			}
-		}
-	*/
+	if len(people) == 0 {
+		c.JSON(200, "No new missing person")
+		return
+	}
 
 	result, err := db.Mongo.Collections["Message"].InsertMany(context.TODO(), people)
 	if err != nil {
@@ -60,6 +67,7 @@ func GetDisasterList(c *gin.Context) {
 	fmt.Println(resultString)
 
 	c.JSON(200, resultString)
+	c.JSON(200, people)
 
 	//fmt.Println("Disasters: ", disasters)
 	//c.JSON(200, disasters)
@@ -116,6 +124,12 @@ func ParseMessage(message string) (*models.Missing, error) {
 	age, err := strconv.Atoi(matches[3])
 	if err != nil {
 		return nil, fmt.Errorf("나이 변환 실패: %v", err)
+	}
+
+	filter := bson.M{"missing.name": matches[1], "missing.age": age}
+	existPerson := db.Mongo.Collections["Message"].FindOne(context.TODO(), filter)
+	if existPerson.Err() == nil {
+		return nil, fmt.Errorf("중복 데이터(SN는 다름) 존재: %s, %d", matches[1], age)
 	}
 
 	descRegex := regexp.MustCompile(`를 찾습니다-(.+?)(?:\r\n|\s+)vo\.la`)

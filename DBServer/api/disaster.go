@@ -23,7 +23,7 @@ type APIResponse struct {
 	Body       []models.Disaster `json:"body"`
 }
 
-func GetDisaster(c context.Context) ([]models.Disaster, error) {
+func GetDisaster(c context.Context, pageNum, rowNum, crtDt string) ([]models.Disaster, error) {
 	err := godotenv.Load(".env")
 	if err != nil {
 		log.Printf("Error loading .env file: %v", err)
@@ -32,9 +32,6 @@ func GetDisaster(c context.Context) ([]models.Disaster, error) {
 
 	serviceKey := os.Getenv("API_SERVICE_KEY")
 	uri := os.Getenv("API_URI")
-	rowNum := "50"
-	pageNum := "1"
-	crtDt := "20240925"
 
 	url := "https://www.safetydata.go.kr/" + uri + "?serviceKey=" + serviceKey
 	url = url + "&numOfRows=" + rowNum
