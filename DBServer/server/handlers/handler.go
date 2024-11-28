@@ -45,7 +45,7 @@ func GetDisasterList(c *gin.Context) {
 
 	log.Printf("Disasters: %v", disasters)
 
-	people, err := parseResponse(c, disasters)
+	people, err := ParseResponse(disasters)
 	if err != nil {
 		fmt.Println("Error parsing response: ", err)
 		c.JSON(500, gin.H{"message": "Error parsing response"})
@@ -149,7 +149,7 @@ func ParseMessage(message string) (*models.Missing, error) {
 	return missing, nil
 }
 
-func parseResponse(c *gin.Context, disasters []models.Disaster) ([]interface{}, error) {
+func ParseResponse(disasters []models.Disaster) ([]interface{}, error) {
 	var people []interface{}
 
 	for _, disaster := range disasters {
